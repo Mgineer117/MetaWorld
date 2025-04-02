@@ -26,7 +26,7 @@ def get_args(verbose=True):
         help='Seed-specific folder name in the "group" folder.',
     )
     parser.add_argument(
-        "--env-name", type=str, default="pick-place-v2", help="Name of the model."
+        "--env-name", type=str, default="draw-close-v2", help="Name of the model."
     )
     parser.add_argument(
         "--episode-len", type=int, default=200, help="Name of the model."
@@ -51,7 +51,7 @@ def get_args(verbose=True):
         "--critic-dim", type=list, default=[128, 128], help="Base learning rate."
     )
     parser.add_argument(
-        "--timesteps", type=int, default=1e6, help="Number of training epochs."
+        "--timesteps", type=int, default=1e7, help="Number of training epochs."
     )
     parser.add_argument(
         "--log-interval", type=int, default=100, help="Number of training epochs."
