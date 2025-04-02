@@ -6,9 +6,7 @@ import torch
 import gymnasium as gym
 
 from torch.utils.tensorboard import SummaryWriter
-from torch.optim.lr_scheduler import LambdaLR
 
-import matplotlib.pyplot as plt
 
 from tqdm import tqdm
 from collections import deque
@@ -17,20 +15,6 @@ from log.wandb_logger import WandbLogger
 from policy.base import Base
 
 from utils.sampler import OnlineSampler
-
-
-COLORS = {
-    "0": "magenta",
-    "1": "red",
-    "2": "blue",
-    "3": "green",
-    "4": "yellow",
-    "5": "orange",
-    "6": "purple",
-    "7": "pink",
-    "8": "brown",
-    "9": "grey",
-}
 
 
 # model-free policy trainer
@@ -43,22 +27,22 @@ class Trainer:
         logger: WandbLogger,
         writer: SummaryWriter,
         timesteps: int = 1e6,
+        episode_len:int = 200,
         log_interval: int = 2,
         eval_num: int = 10,
-        eval_episodes: int = 10,
         seed: int = 0,
     ) -> None:
         self.env = env
         self.policy = policy
         self.sampler = sampler
         self.eval_num = eval_num
-        self.eval_episodes = eval_episodes
 
         self.logger = logger
         self.writer = writer
 
         # training parameters
         self.timesteps = timesteps
+        self.episode_len = episode_len
         self.nupdates = self.policy.nupdates
 
         self.log_interval = log_interval
@@ -143,19 +127,19 @@ class Trainer:
         Given one ref, show tracking performance
         """
         ep_buffer = []
+        rendering_imgs = []
         for num_episodes in range(self.eval_num):
             ep_reward, ep_success, ep_control_effort = 0, 0, 0
-            rendering_imgs = []
 
             # Env initialization
             obs, infos = self.env.reset(seed=self.seed)
-
-            for t in range(1, self.env.episode_len + 1):
+            for t in range(self.episode_len):
                 with torch.no_grad():
                     a, _ = self.policy(obs, deterministic=True)
                     a = a.cpu().numpy().squeeze(0) if a.shape[-1] > 1 else [a.item()]
 
-                next_obs, rew, done, infos = self.env.step(a)
+                next_obs, rew, term, trunc, infos = self.env.step(a)
+                done = True if term or trunc or t == (self.episode_len - 1) else False
 
                 obs = next_obs
                 ep_reward += rew
@@ -220,7 +204,6 @@ class Trainer:
             (self.policy),
             open(path, "wb"),
         )
-        # self.policy.save_model(self.logger.checkpoint_dir, e)
 
         # save the best model
         if (

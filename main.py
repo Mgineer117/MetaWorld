@@ -22,15 +22,20 @@ def run(args, seed, unique_id, exp_time):
     seed_all(seed)
 
     # get env
-    print(metaworld.ML1.ENV_NAMES)  # Check out the available environments
+    # print(metaworld.ML1.ENV_NAMES)  # Check out the available environments
     ml1 = metaworld.ML1(args.env_name)  # Construct the benchmark, sampling tasks
-    env = ml1.train_classes[args.env_name]()
+    env = ml1.train_classes[args.env_name](render_mode="rgb_array")
     try:
         selected_tasks = [random.choice(ml1.train_tasks) for _ in range(args.num_task)]
     except:
         raise ValueError(
             f"Please set num_task <= {len(ml1.train_tasks)} for {args.env_name} environment."
         )
+
+    # save dim for network design
+    args.state_dim = env.observation_space.shape[0]
+    args.action_dim = env.action_space.shape[0]
+
     for task in selected_tasks:
         env.set_task(task)
 
@@ -51,9 +56,9 @@ def run(args, seed, unique_id, exp_time):
             logger=logger,
             writer=writer,
             timesteps=args.timesteps,
+            episode_len=args.episode_len,
             log_interval=args.log_interval,
             eval_num=args.eval_num,
-            eval_episodes=args.eval_episodes,
             seed=args.seed,
         )
 
@@ -75,7 +80,7 @@ if __name__ == "__main__":
     print(f"-------------------------------------------------------")
 
     for seed in seeds:
-        args = override_args(init_args)
+        args = get_args(verbose=False)
         args.seed = seed
 
         run(args, seed, unique_id, exp_time)

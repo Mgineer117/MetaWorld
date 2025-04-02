@@ -18,7 +18,6 @@ class PPO_Actor(nn.Module):
         hidden_dim: list,
         a_dim: int,
         activation: nn.Module = nn.Tanh(),
-        is_discrete: bool = False,
     ):
         super(PPO_Actor, self).__init__()
 
@@ -26,7 +25,6 @@ class PPO_Actor(nn.Module):
         self.act = activation
 
         self.action_dim = a_dim
-        self.is_discrete = is_discrete
 
         self.model = MLP(
             input_dim, hidden_dim, a_dim, activation=self.act, initialization="actor"
@@ -34,45 +32,26 @@ class PPO_Actor(nn.Module):
 
     def forward(
         self,
-        x: torch.Tensor,
-        xref: torch.Tensor,
-        uref: torch.Tensor,
-        x_trim: torch.Tensor,
-        xref_trim: torch.Tensor,
+        state: torch.Tensor,
         deterministic: bool = False,
     ):
-        state = torch.cat((x, xref, uref), dim=-1)
         logits = self.model(state)
 
-        if self.is_discrete:
-            probs = F.softmax(logits, dim=-1)
-            dist = Categorical(probs)
+        ### Shape the output as desired
+        mu = logits
+        logstd = torch.zeros_like(mu)
+        std = torch.exp(logstd)
 
-            if deterministic:
-                a_argmax = torch.argmax(probs, dim=-1)  # .to(self._dtype)
-            else:
-                a_argmax = dist.sample()
-            a = F.one_hot(a_argmax, num_classes=self._a_dim)
+        covariance_matrix = torch.diag_embed(std**2)  # Variance is std^2
+        dist = MultivariateNormal(loc=mu, covariance_matrix=covariance_matrix)
 
-            logprobs = dist.log_prob(a_argmax).unsqueeze(-1)
-            probs = torch.sum(probs * a, dim=-1)
-
+        if deterministic:
+            a = mu
         else:
-            ### Shape the output as desired
-            mu = logits
-            logstd = torch.zeros_like(mu)
-            std = torch.exp(logstd)
+            a = dist.rsample()
 
-            covariance_matrix = torch.diag_embed(std**2)  # Variance is std^2
-            dist = MultivariateNormal(loc=mu, covariance_matrix=covariance_matrix)
-
-            if deterministic:
-                a = mu
-            else:
-                a = dist.rsample()
-
-            logprobs = dist.log_prob(a).unsqueeze(-1)
-            probs = torch.exp(logprobs)
+        logprobs = dist.log_prob(a).unsqueeze(-1)
+        probs = torch.exp(logprobs)
 
         entropy = dist.entropy()
 
@@ -88,11 +67,7 @@ class PPO_Actor(nn.Module):
         Actions must be tensor
         """
         actions = actions.squeeze() if actions.shape[-1] > 1 else actions
-
-        if self.is_discrete:
-            logprobs = dist.log_prob(torch.argmax(actions, dim=-1)).unsqueeze(-1)
-        else:
-            logprobs = dist.log_prob(actions).unsqueeze(-1)
+        logprobs = dist.log_prob(actions).unsqueeze(-1)
         return logprobs
 
     def entropy(self, dist: torch.distributions):

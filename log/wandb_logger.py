@@ -37,7 +37,7 @@ class WandbLogger(BaseLogger):
         name: str = None,
         log_dir: str = "log",
         log_txt: bool = True,
-        fps: int = 10,
+        fps: int = 60,
     ) -> None:
         super().__init__(log_dir, log_txt, name)
         self.fps = fps
@@ -98,6 +98,7 @@ class WandbLogger(BaseLogger):
         Logs a video to wandb using a list of images.
         """
         # Convert images to the required shape: (time, channel, height, width)
+        images = np.stack(images, axis=0)
         images = np.transpose(images, (0, 3, 1, 2))  # Convert to (time, 3, H, W)
 
         # Log the video to wandb

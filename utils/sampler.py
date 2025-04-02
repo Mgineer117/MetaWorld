@@ -28,6 +28,7 @@ class Base:
             ),
             actions=np.full((batch_size, self.action_dim), np.nan, dtype=np.float32),
             rewards=np.full((batch_size, 1), np.nan, dtype=np.float32),
+            successes=np.full((batch_size, 1), np.nan, dtype=np.float32),
             terminals=np.full((batch_size, 1), np.nan, dtype=np.float32),
             logprobs=np.full((batch_size, 1), np.nan, dtype=np.float32),
             entropys=np.full((batch_size, 1), np.nan, dtype=np.float32),
@@ -233,8 +234,8 @@ class OnlineSampler(Base):
         current_step = 0
         while current_step < self.min_batch_for_worker:
             # env initialization
-            obs, _ = env.reset(seed=seed)
-
+            obs, infos = env.reset(seed=seed)
+            suc = 0.0
             for t in range(self.episode_len):
                 with torch.no_grad():
                     a, metaData = policy(obs, deterministic=deterministic)
@@ -242,13 +243,15 @@ class OnlineSampler(Base):
 
                     # env stepping
                     next_obs, rew, term, trunc, infos = env.step(a)
-                    done = term or trunc
+                    suc = np.maximum(suc, infos["success"])
+                    done = True if term or trunc or t == (self.episode_len - 1) else False
 
                 # saving the data
                 data["states"][current_step + t] = obs
                 data["next_states"][current_step + t] = next_obs
                 data["actions"][current_step + t] = a
                 data["rewards"][current_step + t] = rew
+                data["successes"][current_step + t] = suc
                 data["terminals"][current_step + t] = done
                 data["logprobs"][current_step + t] = (
                     metaData["logprobs"].detach().numpy()

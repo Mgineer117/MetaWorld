@@ -40,9 +40,10 @@ def temp_seed(seed, pid):
     Without this, the samples from each multiprocessor will be same since the seed was fixed
     """
     # Set the temporary seed
-    torch.manual_seed(seed + pid)
-    np.random.seed(seed + pid)
-    random.seed(seed + pid)
+    temp_seed = random.randint(0, 2**16)
+    torch.manual_seed(seed + temp_seed + pid)
+    np.random.seed(seed + temp_seed + pid)
+    random.seed(seed + temp_seed + pid)
 
 
 def setup_logger(args, unique_id, exp_time, seed):
@@ -56,11 +57,11 @@ def setup_logger(args, unique_id, exp_time, seed):
 
     if args.name is None:
         args.name = "-".join(
-            (args.algo_name, args.task, unique_id, "seed:" + str(seed))
+            (args.algo_name, args.env_name, unique_id, "seed:" + str(seed))
         )
 
     if args.project is None:
-        args.project = args.task
+        args.project = args.env_name
 
     args.logdir = os.path.join(args.logdir, args.group)
 

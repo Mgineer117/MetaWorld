@@ -2,7 +2,7 @@ import torch
 import argparse
 
 
-def get_args():
+def get_args(verbose=True):
     parser = argparse.ArgumentParser(description="")
     parser.add_argument(
         "--project",
@@ -28,7 +28,11 @@ def get_args():
     parser.add_argument(
         "--env-name", type=str, default="pick-place-v2", help="Name of the model."
     )
+    parser.add_argument(
+        "--episode-len", type=int, default=200, help="Name of the model."
+    )
     parser.add_argument("--num-task", type=int, default=10, help="Name of the model.")
+    parser.add_argument("--num-runs", type=int, default=10, help="Name of the model.")
     parser.add_argument("--algo-name", type=str, default="ppo", help="Disable cuda.")
     parser.add_argument("--seed", type=int, default=42, help="Batch size.")
     parser.add_argument(
@@ -55,13 +59,13 @@ def get_args():
     parser.add_argument(
         "--eval-num", type=int, default=10, help="Number of training epochs."
     )
-    parser.add_argument("--num-minibatch", type=int, default=None, help="")
-    parser.add_argument("--minibatch-size", type=int, default=None, help="")
-    parser.add_argument("--K-epochs", type=int, default=None, help="")
+    parser.add_argument("--num-minibatch", type=int, default=4, help="")
+    parser.add_argument("--minibatch-size", type=int, default=512, help="")
+    parser.add_argument("--K-epochs", type=int, default=5, help="")
     parser.add_argument(
         "--target-kl",
         type=float,
-        default=None,
+        default=0.02,
         help="Upper bound of the eigenvalue of the dual metric.",
     )
     parser.add_argument(
@@ -71,15 +75,15 @@ def get_args():
         help="Lower bound of the eigenvalue of the dual metric.",
     )
     parser.add_argument(
-        "--entropy-scaler", type=float, default=None, help="Base learning rate."
+        "--entropy-scaler", type=float, default=1e-2, help="Base learning rate."
     )
-    parser.add_argument("--gamma", type=float, default=None, help="Base learning rate.")
+    parser.add_argument("--gamma", type=float, default=0.99, help="Base learning rate.")
     parser.add_argument(
         "--gpu-idx", type=int, default=0, help="Number of training epochs."
     )
 
     args = parser.parse_args()
-    args.device = select_device(args.gpu_idx)
+    args.device = select_device(args.gpu_idx, verbose=verbose)
 
     return args
 

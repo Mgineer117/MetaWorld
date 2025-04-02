@@ -83,7 +83,6 @@ class PPO(Base):
         self.to(device)
 
     def forward(self, state: np.ndarray, deterministic: bool = False):
-        self._forward_steps += 1
         state = torch.from_numpy(state).to(self._dtype).to(self.device)
         if len(state.shape) == 1:
             state = state.unsqueeze(0)
@@ -108,6 +107,7 @@ class PPO(Base):
         states = to_tensor(batch["states"])
         actions = to_tensor(batch["actions"])
         rewards = to_tensor(batch["rewards"])
+        successes = to_tensor(batch["successes"])
         terminals = to_tensor(batch["terminals"])
         old_logprobs = to_tensor(batch["logprobs"])
 
@@ -161,8 +161,7 @@ class PPO(Base):
                 value_losses.append(value_loss.item())
 
                 # 2. actor Update
-                x, xref, uref, x_trim, xref_trim = self.trim_state(mb_states)
-                _, metaData = self.actor(x, xref, uref, x_trim, xref_trim)
+                _, metaData = self.actor(mb_states)
                 logprobs = self.actor.log_prob(metaData["dist"], mb_actions)
                 entropy = self.actor.entropy(metaData["dist"])
                 ratios = torch.exp(logprobs - mb_old_logprobs)
@@ -221,6 +220,7 @@ class PPO(Base):
             f"{self.name}/analytics/klDivergence": target_kl[-1],
             f"{self.name}/analytics/K-epoch": k + 1,
             f"{self.name}/analytics/avg_rewards": torch.mean(rewards).item(),
+            f"{self.name}/analytics/avg_successes": torch.mean(successes).item(),
             f"{self.name}/lr/actor_lr": self.optimizer.param_groups[0]["lr"],
             f"{self.name}/lr/critic_lr": self.optimizer.param_groups[1]["lr"],
         }

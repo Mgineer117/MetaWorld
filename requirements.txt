@@ -6,3 +6,4 @@ torch
 wandb
 tensorboard
 tqdm
+wandb[media]
