@@ -144,7 +144,7 @@ class Trainer:
                 obs = next_obs
                 ep_reward += rew
                 ep_control_effort += np.linalg.norm(a)
-                ep_success += np.maximum(ep_success, infos["success"])
+                ep_success = np.maximum(ep_success, infos["success"])
                 if num_episodes == 0:
                     rendering_imgs.append(self.env.render())
 
