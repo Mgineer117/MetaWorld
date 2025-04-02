@@ -26,7 +26,7 @@ def get_args(verbose=True):
         help='Seed-specific folder name in the "group" folder.',
     )
     parser.add_argument(
-        "--env-name", type=str, default="draw-close-v2", help="Name of the model."
+        "--env-name", type=str, default="drawer-close-v2", help="Name of the model."
     )
     parser.add_argument(
         "--episode-len", type=int, default=200, help="Name of the model."
