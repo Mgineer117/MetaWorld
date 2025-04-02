@@ -26,13 +26,13 @@ def get_args(verbose=True):
         help='Seed-specific folder name in the "group" folder.',
     )
     parser.add_argument(
-        "--env-name", type=str, default="drawer-close-v2", help="Name of the model."
+        "--env-name", type=str, default="window-close-v2", help="Name of the model."
     )
     parser.add_argument(
         "--episode-len", type=int, default=200, help="Name of the model."
     )
     parser.add_argument("--num-task", type=int, default=10, help="Name of the model.")
-    parser.add_argument("--num-runs", type=int, default=10, help="Name of the model.")
+    parser.add_argument("--num-runs", type=int, default=50, help="Name of the model.")
     parser.add_argument("--algo-name", type=str, default="ppo", help="Disable cuda.")
     parser.add_argument("--seed", type=int, default=42, help="Batch size.")
     parser.add_argument(
