@@ -1,1 +1,0 @@
-nohup python3 main.py --project MetaWorld --env-name drawer-open-v2 --algo-name ppo --timesteps 10000000 &
