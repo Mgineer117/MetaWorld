@@ -1,0 +1,1 @@
+nohup python3 main.py --project MetaWorld --env-name window-close-v2 --algo-name ppo &
