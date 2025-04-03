@@ -1,4 +1,4 @@
-nohup python3 main.py --project MetaWorld --task door-open-v2 --algo-name ppo --timesteps 10000000 --gpu-idx 2 &
+nohup python3 main.py --project MetaWorld --env-name door-open-v2 --algo-name ppo --timesteps 10000000 --gpu-idx 2 &
 nohup python3 main.py --project MetaWorld --env-name window-open-v2 --algo-name ppo --timesteps 10000000 --gpu-idx 2 &
 nohup python3 main.py --project MetaWorld --env-name window-close-v2 --algo-name ppo --timesteps 10000000 --gpu-idx 2 &
 nohup python3 main.py --project MetaWorld --env-name drawer-open-v2 --algo-name ppo --timesteps 10000000 --gpu-idx 2 &
