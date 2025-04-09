@@ -1,0 +1,5 @@
+nohup python3 main.py --project MetaWorld --env-name pick-place-v2 --algo-name ppo --timesteps 10000000 --gpu-idx 3 &
+nohup python3 main.py --project MetaWorld --env-name push-v2 --algo-name ppo --timesteps 10000000 --gpu-idx 3 &
+nohup python3 main.py --project MetaWorld --env-name reach-v2 --algo-name ppo --timesteps 10000000 --gpu-idx 3 &
+nohup python3 main.py --project MetaWorld --env-name peg-insert-side-v2 --algo-name ppo --timesteps 20000000 --gpu-idx 3 &
+nohup python3 main.py --project MetaWorld --env-name button-press-v2 --algo-name ppo --timesteps 10000000 --gpu-idx 3 &

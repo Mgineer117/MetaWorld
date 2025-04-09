@@ -45,10 +45,10 @@ def get_args(verbose=True):
         "--eps-clip", type=float, default=0.2, help="Base learning rate."
     )
     parser.add_argument(
-        "--actor-dim", type=list, default=[64, 64], help="Base learning rate."
+        "--actor-dim", type=list, default=[128, 128], help="Base learning rate."
     )
     parser.add_argument(
-        "--critic-dim", type=list, default=[128, 128], help="Base learning rate."
+        "--critic-dim", type=list, default=[256, 256], help="Base learning rate."
     )
     parser.add_argument(
         "--timesteps", type=int, default=1e7, help="Number of training epochs."

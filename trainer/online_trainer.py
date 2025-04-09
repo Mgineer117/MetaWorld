@@ -102,12 +102,13 @@ class Trainer:
 
                     # Manual logging
                     self.write_log(eval_dict, step=step, eval_log=True)
-                    self.write_video(
-                        render_imgs,
-                        step=step,
-                        logdir=f"{self.policy.name}",
-                        name="rendering",
-                    )
+                    if eval_idx % 25 == 0:
+                        self.write_video(
+                            render_imgs,
+                            step=step,
+                            logdir=f"{self.policy.name}",
+                            name="rendering",
+                        )
 
                     self.last_reward_mean.append(eval_dict[f"eval/rew_mean"])
                     self.last_reward_std.append(eval_dict[f"eval/rew_std"])
@@ -192,9 +193,12 @@ class Trainer:
 
     def write_video(self, rendering_imgs: list, step: int, logdir: str, name: str):
         path_render_path = os.path.join(logdir, name)
-        self.logger.write_videos(
-            step=step, images=rendering_imgs, logdir=path_render_path
-        )
+        try:
+            self.logger.write_videos(
+                step=step, images=rendering_imgs, logdir=path_render_path
+            )
+        except:
+            print("Video logging error. Likely a system problem.")
 
     def save_model(self, e):
         # save checkpoint
